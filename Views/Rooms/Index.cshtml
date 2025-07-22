@@ -1,0 +1,39 @@
+﻿@model List<Hotel.Models.Room>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Rooms</h3>
+
+<a asp-action="Create" class="btn btn-success mb-3">Create a new Room</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>RoomId</th>
+            <th>Number</th>
+            <th>Capacity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var room in Model)
+        {
+            <tr>
+                <td>@room.Id</td>
+                <td>@room.Number</td>
+                <td>@room.Capacity.ToString()</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@room.Id"
+                       class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@room.Id"
+                       class="btn btn-danger btn-sm">Delete</a>
+
+                    <a asp-action="Calendar"
+                       asp-route-id="@room.Id"
+                       class="btn btn-info btn-sm">Calendar</a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

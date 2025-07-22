@@ -1,0 +1,25 @@
+﻿@model Hotel.Models.User
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h3>Add a user</h3>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="text" class="form-control" asp-for="Email" />
+    </div>
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <input type="text" class="form-control" asp-for="Password" />
+    </div>
+    <div class="form-group">
+        <label for="Role">Role</label>
+        <select asp-for="Role" class="form-select">
+            <option value="Guest" selected>Guest</option>
+            <option value="Admin">Admin</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

@@ -1,0 +1,28 @@
+﻿@model List<Hotel.Models.Booking>
+@{
+    ViewData["Title"] = "MyBookings";
+}
+
+<h3>My Bookings</h3>
+
+<a asp-action="Book" class="btn btn-success mb-3">Create new Booking</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>RoomId</th>
+            <th>StartDate</th>
+            <th>EndDate</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.RoomId.ToString()</td>
+                <td>@booking.StartDate.ToString()</td>
+                <td>@booking.EndDate.ToString()</td>
+            </tr>
+        }
+    </tbody>
+</table>

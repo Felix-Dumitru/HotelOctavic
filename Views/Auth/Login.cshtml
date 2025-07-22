@@ -1,0 +1,19 @@
+﻿@model Hotel.Models.Auth.LoginVm
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h3>Log into your account</h3>
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <label asp-for="Email"></label>
+    <input asp-for="Email" class="form-control" />
+
+    <label asp-for="Password"></label>
+    <input asp-for="Password" type="password" class="form-control" />
+
+    <button type="submit" class="btn btn-primary mt-2">Log in</button>
+</form>

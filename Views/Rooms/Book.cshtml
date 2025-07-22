@@ -1,0 +1,57 @@
+﻿@model int
+
+@{
+    ViewData["Title"] = "Book room";
+}
+
+<h2>Book this room</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <label>Start</label>
+        <div class="input-group date" id="startPicker">
+            <input id="start" type="text" class="form-control"/>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <label>End</label>
+        <div class="input-group date" id="endPicker">
+            <input id="end" type="text" class="form-control"/>
+            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+        </div>
+    </div>
+</div>
+
+<a asp-controller="MyBookings" asp-action="MyBookings"
+   class="btn btn-primary mt-3">My Bookings</a>
+
+@section Scripts{
+    <script>
+$(function () 
+{
+    $('#startPicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        useCurrent: false
+    });
+    $('#endPicker').datetimepicker({
+        format: 'YYYY-MM-DD',
+        useCurrent: false
+    });
+    $("#startPicker").on("dp.change", function (e) {
+        $('#endPicker').data("DateTimePicker").minDate(e.date);
+    });
+    $("#endPicker").on("dp.change", function (e) {
+        $('#startPicker').data("DateTimePicker").maxDate(e.date);
+    });
+
+    $.getJSON('/api/rooms/@Model/bookeddates', function (days) {
+        var disabled = days.map(function (d) { return moment(d); });
+        $('#startPicker').data("DateTimePicker").disabledDates(disabled);
+        $('#endPicker'  ).data("DateTimePicker").disabledDates(disabled);
+    }).fail(function () {
+        alert('Could not load existing bookings.');
+    });
+});
+</script>
+}

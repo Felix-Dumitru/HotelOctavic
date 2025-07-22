@@ -1,0 +1,28 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Room calendar";
+}
+<h3>Booked days for Room with ID @Model</h3>
+
+<div id="calendar"></div>
+
+@section Scripts{
+    <script>
+$(function () 
+{
+
+    $('#calendar').datetimepicker({
+        inline: true,
+        sideBySide: false,
+        format: 'YYYY-MM-DD',
+        disabledDates: []
+    });
+
+    $.getJSON('/api/rooms/bookeddates/@Model', function(days){
+        var moments = days.map(function(d){ return moment(d); });
+        $('#calendar').data("DateTimePicker").disabledDates(moments);
+    })
+    .fail(function(){ alert('Could not load bookings'); });
+});
+</script>
+}
