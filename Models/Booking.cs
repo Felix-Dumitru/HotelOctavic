@@ -14,10 +14,12 @@ namespace Hotel.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
-        //[ForeignKey("RoomId")]
-        [ValidateNever] public Room Room { get; set; }
+        public int NoOfPeople { get; set; }
+
         //[ForeignKey("UserId")]
         [ValidateNever] public User User { get; set; }
 
+        //[ForeignKey("RoomId")]
+        [ValidateNever] public Room Room { get; set; }
     }
 }

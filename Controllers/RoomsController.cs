@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;    
 using Hotel.Data;
 using Hotel.Models;
+using Hotel.Models.ViewModels;
 
 
 namespace Hotel.Controllers
@@ -92,9 +93,21 @@ namespace Hotel.Controllers
             return Ok(days.Distinct());
         }
 
-        public IActionResult Calendar(int id)
+        public async Task<IActionResult> Calendar(int id)
         {
-            return View(model: id);
+            var vm = await _context.Rooms
+                .Where(r => r.Id == id)
+                .Select(r => new RoomCalendarVm
+                {
+                    RoomId = r.Id,
+                    RoomNumber = r.Number
+                })
+                .SingleOrDefaultAsync();
+
+            if (vm == null)
+                return NotFound();
+
+            return View(vm);
         }
     }
 }

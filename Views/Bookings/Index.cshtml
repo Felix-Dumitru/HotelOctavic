@@ -1,17 +1,22 @@
-﻿@model List<Hotel.Models.Booking>
+﻿@using Hotel.Models.ViewModels
+@model List<BookingVm>
 @{
     ViewData["Title"] = "Index";
 }
 
 <h3>Bookings</h3>
 
-<a asp-action="Create" class="btn btn-success mb-3">Create new Booking</a>
+<div class="d-flex justify-content-start mb-3">
+    <a asp-action="Create" class="btn btn-success me-2">Create new booking</a>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Back to dashboard</a>
+</div>
 
 <table class="table">
     <thead>
     <tr>
-        <th>UserId</th>
-        <th>RoomId</th>
+        <th>UserName</th>
+        <th>RoomNumber</th>
+        <th>People</th>
         <th>StartDate</th>
         <th>EndDate</th>
     </tr>
@@ -20,15 +25,16 @@
     @foreach(var booking in Model)
     {
         <tr>
-            <td>@booking.UserId.ToString()</td>
-            <td>@booking.RoomId.ToString()</td>
-            <td>@booking.StartDate.ToString()</td>
-            <td>@booking.EndDate.ToString()</td>
+            <td>@booking.UserName</td>
+            <td>@booking.RoomNumber</td>
+                <td>@booking.NoOfPeople.ToString()</td>
+            <td>@booking.StartDate.Date</td>
+            <td>@booking.EndDate.Date</td>
             <td>
                 <a asp-action="Edit" asp-route-id="@booking.Id"
                    class="btn btn-primary btn-sm">Edit</a>
                 <a asp-action="Delete" asp-route-id="@booking.Id"
-                       class="btn btn-danger btn-sm">Delete</a>
+                   class="btn btn-danger btn-sm">Delete</a>
             </td>
         </tr>
     }

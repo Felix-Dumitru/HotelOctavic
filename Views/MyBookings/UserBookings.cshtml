@@ -1,15 +1,22 @@
-﻿@model List<Hotel.Models.Booking>
+﻿@using Hotel.Models.ViewModels
+@model List<Hotel.Models.ViewModels.BookingVm>
 @{
-    ViewData["Title"] = "Bookings for User";
+    ViewData["Title"] = "Bookings for a user";
 }
 
-<h3>My Bookings</h3>
+<h3>Bookings for a user</h3>
+
+<div class="d-flex align-items-center justify-content-start mt-3">
+    <a asp-action="Book" class="btn btn-success m">Create new Booking</a>
+    <a asp-controller="Users" asp-action="Index" class="btn btn-secondary">Back to users</a>
+</div>
 
 <table class="table">
     <thead>
     <tr>
-        <th>UserId</th>
-        <th>RoomId</th>
+        <th>User name</th>
+        <th>Room number</th>
+        <th>Number of people</th>
         <th>StartDate</th>
         <th>EndDate</th>
     </tr>
@@ -18,8 +25,9 @@
     @foreach (var booking in Model)
     {
         <tr>
-            <td>@booking.UserId.ToString()</td>
-            <td>@booking.RoomId.ToString()</td>
+            <td>@booking.UserName</td>
+            <td>@booking.RoomNumber</td>
+            <td>@booking.NoOfPeople</td>
             <td>@booking.StartDate.ToString()</td>
             <td>@booking.EndDate.ToString()</td>
         </tr>

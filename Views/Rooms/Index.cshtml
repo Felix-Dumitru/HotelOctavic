@@ -5,7 +5,10 @@
 
 <h3>Rooms</h3>
 
-<a asp-action="Create" class="btn btn-success mb-3">Create a new Room</a>
+<div class="d-flex justify-content-start mb-3">
+    <a asp-action="Create" class="btn btn-success me-2">Create new room</a>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Back to dashboard</a>
+</div>
 
 <table class="table">
     <thead>

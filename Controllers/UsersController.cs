@@ -27,7 +27,7 @@ namespace Hotel.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Email, Password, Role")] User user)
+        public async Task<IActionResult> Create([Bind("Id, Name, Email, Password, Role")] User user)
         {
             if (ModelState.IsValid)
             {
@@ -45,7 +45,7 @@ namespace Hotel.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, Email, Password, Role")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id, Name, Email, Password, Role")] User user)
         {
             if (ModelState.IsValid)
             {

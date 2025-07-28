@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Immutable;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Hotel.Data;
 using Hotel.Models;
+using Hotel.Models.ViewModels;
+using Hotel.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,75 +12,81 @@ namespace Hotel.Controllers
 {
     public class MyBookingsController : Controller
     {
-        private readonly HotelContext _context;
+        private readonly IMyBookingsService _service;
 
-        public MyBookingsController(HotelContext context)
+        public MyBookingsController(IMyBookingsService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        [HttpGet("/Rooms/Book/{roomId:int}")]
-        public IActionResult Book(int roomId)
+        [HttpGet("/MyBookings/Book")]
+        public IActionResult Book()
         {
-            return View("Book", new Booking { RoomId = roomId });
+            var vm = new GuestBookingVm
+            {
+                NoOfPeople = 1,
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(1)
+            };
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Book([Bind("StartDate,EndDate")] Booking booking)
+        public async Task<IActionResult> Book(GuestBookingVm vm)
         {
-            booking.UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (!ModelState.IsValid)
+                return View(vm);
 
-            if (!ModelState.IsValid) return View(booking);
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var freeRoom = await _context.Rooms.FirstOrDefaultAsync(r =>
-                !_context.Bookings.Any(b =>
-                    b.RoomId == r.Id &&
-                    booking.StartDate < b.EndDate &&
-                    booking.EndDate > b.StartDate));
-
-            if (freeRoom == null)
+            var success = await _service.CreateMyBookingAsync(userId, vm);
+            if (success == false)
             {
-                ModelState.AddModelError("", "No rooms available for that period.");
-                return View(booking);
+                ModelState.AddModelError("", "No rooms available for this period.");
+                return View(vm);
             }
 
-            booking.RoomId = freeRoom.Id;
-
-            _context.Bookings.Add(booking);
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(MyBookings));
         }
 
+
+
         public async Task<IActionResult> MyBookings()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var myBookings = await _context.Bookings
-                .Where(b => b.UserId.ToString() == userId)
-                .Include(b => b.Room)
-                .ToListAsync();
+            int id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var vms = await _service.GetMyBookingsAsync(id);
 
-            return View(myBookings);
+            return View(vms);
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var vm = await _service.GetVmAsync(id);
+
+            return View(vm);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var success = await _service.DeleteMyBookingAsync(id, userId);
+            if (!success) 
+                return NotFound();
+
+            TempData["Status"] = "Booking deleted.";
+            return RedirectToAction(nameof(MyBookings));
         }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UserBookings(int id)
         {
-            var bookings = await _context.Bookings
-                .Where(b => b.UserId == id)
-                .Include(b => b.Room)
-                .ToListAsync();
+            var vms = await _service.GetMyBookingsAsync(id);
 
-            return View(bookings);
-        }
-
-        public IActionResult Book()
-        {
-            return View(new Booking
-            {
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddDays(1)
-            });
+            return View(vms);
         }
     }
 }

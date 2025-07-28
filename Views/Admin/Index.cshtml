@@ -1,13 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Admin Panel";
+    ViewData["Title"] = "Admin dashboard";
 }
-<h2 class="mb-4">Administration</h2>
+<h2 class="mb-4">Admin dashboard</h2>
 
-<div class="d-grid gap-3">   @* a simple vertical stack *@
+<a asp-controller="Auth" asp-action="Logout"
+   class="btn btn-info mb-3">Log out</a>
+
+<div class="d-grid gap-3">
     <a asp-controller="Users"    asp-action="Index"
        class="btn btn-primary btn-lg">Manage Users</a>
     <a asp-controller="Rooms"    asp-action="Index"
-       class="btn btn-secondary btn-lg">Manage Rooms</a>
+       class="btn btn-info btn-lg">Manage Rooms</a>
     <a asp-controller="Bookings" asp-action="Index"
-       class="btn btn-info btn-lg">Manage Bookings</a>
+       class="btn btn-success btn-lg">Manage Bookings</a>
 </div>

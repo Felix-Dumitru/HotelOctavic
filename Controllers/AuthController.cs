@@ -1,7 +1,8 @@
 ﻿using System.Security.Claims;
 using Hotel.Data;
 using Hotel.Models;
-using Hotel.Models.Auth;
+using Hotel.Models.ViewModels.Auth;
+using Hotel.Service.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +12,11 @@ namespace Hotel.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly HotelContext _context;
+        private readonly IAuthService _auth;
 
-        public AuthController(HotelContext context)
+        public AuthController(IAuthService authService)
         {
-            _context = context;
+            _auth = authService;
         }
 
         public IActionResult Register()
@@ -31,16 +32,15 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            if (await _context.Users.AnyAsync(u => u.Email == vm.Email))
+            var (success, error) = await _auth.RegisterAsync(vm);
+
+            if (!success)
             {
-                ModelState.AddModelError("", "Email already registered");
+                ModelState.AddModelError("", error);
                 return View(vm);
             }
 
-            var user = new User { Email = vm.Email, Password = vm.Password, Role = vm.Role };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Login");
         }
 
@@ -57,30 +57,20 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            var existingUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email == vm.Email && u.Password == vm.Password);
-            if (existingUser == null)
+            var result = await _auth.BuildLoginAsync(vm.Email, vm.Password);
+
+
+            if (!result.Success)
             {
-                ModelState.AddModelError("", "No user exists with this email and password.");
+                ModelState.AddModelError("", "Invalid email or password");
                 return View(vm);
             }
 
-            var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
-                new Claim(ClaimTypes.Email, existingUser.Email),
-                new Claim(ClaimTypes.Role,  existingUser.Role)
-            };
-
             await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)));
+                CookieAuthenticationDefaults.AuthenticationScheme, result.Principal);
 
-            if (existingUser.Role == "Admin")
-            {
-                return RedirectToAction("Index", "Admin");
-            }
-            
-            return RedirectToAction("Book", "MyBookings");
+            return LocalRedirect(result.RedirectUrl ?? "/");
+
         }
 
         public async Task<IActionResult> Logout()

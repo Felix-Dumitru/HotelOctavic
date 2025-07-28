@@ -1,24 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hotel.Data;
-using Hotel.Models;
+using Hotel.Service;
 using Microsoft.AspNetCore.Authorization;
+using Hotel.Models.ViewModels;
 
 namespace Hotel.Controllers
 {
     public class BookingsController : Controller
     {
-        private readonly HotelContext _context;
+        private readonly IBookingService _service;
 
-        public BookingsController(HotelContext context)
+        public BookingsController(IBookingService bookingService)
         {
-            _context = context;
+            _service = bookingService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var bookings = await _context.Bookings.ToListAsync();
-            return View(bookings);
+            var vms = await _service.GetAllVmsAsync();
+
+            return View(vms);
         }
 
         public IActionResult Create()
@@ -27,78 +29,60 @@ namespace Hotel.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, UserId, RoomId, StartDate, EndDate")] Booking booking)
+        public async Task<IActionResult> Create(BookingVm vm)
         {
             if (!ModelState.IsValid)
             {
-                return View(booking);
+                return View(vm);
             }
 
-            bool overlap = await _context.Bookings.AnyAsync(b =>
-                b.RoomId == booking.RoomId &&
-                booking.StartDate < b.EndDate &&
-                booking.EndDate > b.StartDate);
-
-            if (overlap)
+            var success = await _service.CreateAsync(vm);
+            if (success == null)
             {
-                ModelState.AddModelError("", "That room is already booked for this period");
-                return View(booking);
+                ModelState.AddModelError("", "Error with user, room or dates.");
+                return View(vm);
             }
 
-
-            _context.Bookings.Add(booking);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            return View(booking);
+            var vm = await _service.GetVmAsync(id);
+
+            return View(vm);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, UserId, RoomId, StartDate, EndDate")] Booking booking)
+        public async Task<IActionResult> Edit(int id, BookingVm vm)
         {
             if (!ModelState.IsValid)
             {
-                return View(booking);
+                return View(vm);
             }
 
-            bool overlap = await _context.Bookings.AnyAsync(b =>
-                b.RoomId == booking.RoomId &&
-                b.Id != booking.Id &&
-                booking.StartDate < b.EndDate &&
-                booking.EndDate > b.StartDate);
-
-            if (overlap)
+            var success = await _service.UpdateAsync(id, vm);
+            if (success == false)
             {
-                ModelState.AddModelError("", "That room is already booked for this period");
-                return View(booking);
+                ModelState.AddModelError("", "Error with user, room or dates.");
+                return View(vm);
             }
 
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
 
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
-            return View(booking);
+            var vm = await _service.GetVmAsync(id);
+
+            return View(vm);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
-            if (booking != null)
-            {
-                _context.Bookings.Remove(booking);
-                await _context.SaveChangesAsync();
-            }
-
+            await _service.DeleteAsync(id);
             return RedirectToAction("Index");
         }
     }

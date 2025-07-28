@@ -1,6 +1,7 @@
-﻿@model List<Hotel.Models.Booking>
+﻿@using Hotel.Models.ViewModels
+@model List<Hotel.Models.ViewModels.BookingVm>
 @{
-    ViewData["Title"] = "MyBookings";
+    ViewData["Title"] = "My bookings";
 }
 
 <h3>My Bookings</h3>
@@ -9,20 +10,28 @@
 
 <table class="table">
     <thead>
-        <tr>
-            <th>RoomId</th>
-            <th>StartDate</th>
-            <th>EndDate</th>
-        </tr>
+    <tr>
+        <th>Room number</th>
+        <th>Number of people</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th class="text-end">Actions</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var booking in Model)
-        {
-            <tr>
-                <td>@booking.RoomId.ToString()</td>
-                <td>@booking.StartDate.ToString()</td>
-                <td>@booking.EndDate.ToString()</td>
-            </tr>
-        }
+    @foreach (var booking in Model)
+    {
+        <tr>
+            <td>@booking.RoomNumber</td>
+            <td>@booking.NoOfPeople</td>
+            <td>@booking.StartDate</td>
+            <td>@booking.EndDate</td>
+            <td class="text-end">
+                <a asp-action="Delete"
+                   asp-route-id="@booking.Id"
+                   class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>

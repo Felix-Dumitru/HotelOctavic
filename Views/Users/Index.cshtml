@@ -5,7 +5,10 @@
 
 <h3>Users</h3>
 
-<a asp-action="Create" class="btn btn-success mb-3">Add a new User</a>
+<div class="d-flex justify-content-start mb-3">
+    <a asp-action="Create" class="btn btn-success me-2">Add a new user</a>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Back to dashboard</a>
+</div>
 
 <table class="table">
     <thead>
@@ -27,11 +30,8 @@
                        class="btn btn-primary btn-sm">Edit</a>
                     <a asp-action="Delete" asp-route-id="@user.Id"
                        class="btn btn-danger btn-sm">Delete</a>
-                    <a asp-controller="MyBookings"
-                       asp-action="UserBookings"
-                       asp-route-id="@user.Id"
-                       class="btn btn-info btn-sm">
-                        View Bookings
+                    <a asp-controller="MyBookings" asp-action="UserBookings" 
+                       asp-route-id="@user.Id" class="btn btn-info btn-sm">View Bookings
                     </a>
                 </td>
             </tr>

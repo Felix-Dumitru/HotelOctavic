@@ -1,4 +1,5 @@
-﻿@model Hotel.Models.Auth.RegisterVm
+﻿@using Hotel.Models.ViewModels.Auth
+@model RegisterVm
 
 @{
     ViewData["Title"] = "Register";
@@ -21,6 +22,10 @@
         <option value="Guest" selected>Guest</option>
         <option value="Admin">Admin</option>
     </select>
+    
+    <div class="d-flex align-items-center justify-content-start mt-3">
+        <button type="submit" class="btn btn-success me-2">Create account</button>
+        <a asp-action="Login" class="btn btn-primary">Already have an account</a>
+    </div>
 
-    <button type="submit" class="btn btn-primary mt-2">Create account</button>
 </form>

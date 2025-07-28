@@ -1,6 +1,11 @@
+using AutoMapper;
 using Hotel.Data;
+using Hotel.Profiles;
+using Hotel.Service;
+using Hotel.Service.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +22,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         opts.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
 builder.Services.AddAuthorization();
-
+builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMyBookingsService, MyBookingsService>();
 
 var app = builder.Build();
 
@@ -36,6 +43,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapGet("/", () => Results.Redirect("/auth/login"));
 
 app.MapControllerRoute(
         name: "default",

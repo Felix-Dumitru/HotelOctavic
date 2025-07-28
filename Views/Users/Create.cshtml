@@ -6,14 +6,21 @@
 <h3>Add a user</h3>
 
 <form asp-action="Create" method="post">
+    <div  class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" class="form-control" asp-for="Name" />
+    </div>
+
     <div class="form-group">
         <label for="Email">Email</label>
-        <input type="text" class="form-control" asp-for="Email" />
+        <input type="text" class="form-control" asp-for="Email"/>
     </div>
+
     <div class="form-group">
         <label for="Password">Password</label>
-        <input type="text" class="form-control" asp-for="Password" />
+        <input type="text" class="form-control" asp-for="Password"/>
     </div>
+
     <div class="form-group">
         <label for="Role">Role</label>
         <select asp-for="Role" class="form-select">
@@ -22,4 +29,5 @@
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
+    <a asp-action="Index" class="btn btn-danger">Cancel</a>
 </form>

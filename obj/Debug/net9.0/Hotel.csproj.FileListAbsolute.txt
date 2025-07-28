@@ -298,3 +298,5 @@ D:\Felix\Facultate\Practica\Proiect\Hotel\obj\Debug\net9.0\compressed\a3ygkwa5zy
 D:\Felix\Facultate\Practica\Proiect\Hotel\obj\Debug\net9.0\compressed\nezrqnk58p-muycvpuwrr.gz
 D:\Felix\Facultate\Practica\Proiect\Hotel\obj\Debug\net9.0\compressed\v0zgfp0y55-87fc7y1x7t.gz
 D:\Felix\Facultate\Practica\Proiect\Hotel\obj\Debug\net9.0\compressed\yfc7ypekbg-mlv21k5csn.gz
+D:\Felix\Facultate\Practica\Proiect\Hotel\obj\Debug\net9.0\Hotel.sourcelink.json
+D:\Felix\Facultate\Practica\Proiect\Hotel\bin\Debug\net9.0\AutoMapper.dll

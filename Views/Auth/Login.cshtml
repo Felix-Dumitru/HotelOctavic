@@ -1,4 +1,5 @@
-﻿@model Hotel.Models.Auth.LoginVm
+﻿@using Hotel.Models.ViewModels.Auth
+@model LoginVm
 @{
     ViewData["Title"] = "Log in";
 }
@@ -14,6 +15,10 @@
 
     <label asp-for="Password"></label>
     <input asp-for="Password" type="password" class="form-control" />
+    
+    <div class="d-flex align-items-center justify-content-start mt-3">
+        <button type="submit" class="btn btn-success me-2">Log in</button>
+        <a asp-action="Register" class="btn btn-primary">Register an account</a>
+    </div>
 
-    <button type="submit" class="btn btn-primary mt-2">Log in</button>
 </form>

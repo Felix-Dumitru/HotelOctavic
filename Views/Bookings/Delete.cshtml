@@ -1,16 +1,22 @@
-﻿@model Hotel.Models.Booking
+﻿@using Hotel.Models.ViewModels
+@model BookingVm
 @{
     ViewData["Title"] = "Delete Booking";
 }
 
 <h3>Are you sure you want to delete this booking?</h3>
 
-<p>UserId: @Model.UserId</p>
-<p>RoomId: @Model.RoomId</p>
+<p>User name: @Model.UserName</p>
+<p>Room number: @Model.RoomNumber</p>
+<p>Number of people: @Model.NoOfPeople</p>
 <p>StartDate: @Model.StartDate</p>
 <p>EndDate: @Model.EndDate</p>
 
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-</form>
+<div class="d-flex align-items-center justify-content-start mt-3">
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-success">Cancel</a>
+    </form>
+    
+</div>

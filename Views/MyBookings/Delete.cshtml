@@ -1,0 +1,21 @@
+﻿@using Hotel.Models.ViewModels
+@model GuestBookingVm
+@{
+    ViewData["Title"] = "Delete Booking";
+}
+
+<h3>Are you sure you want to delete this booking?</h3>
+
+<p>Room number: @Model.RoomNumber</p>
+<p>Number of people: @Model.NoOfPeople</p>
+<p>StartDate: @Model.StartDate</p>
+<p>EndDate: @Model.EndDate</p>
+
+<div class="d-flex align-items-center justify-content-start mt-3">
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="MyBookings" class="btn btn-success">Cancel</a>
+    </form>
+
+</div>
