@@ -3,6 +3,7 @@ using Hotel.Models;
 using Hotel.Models.ViewModels;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using Hotel.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hotel.Service
@@ -35,18 +36,18 @@ namespace Hotel.Service
             return vms;
         }
 
-        public async Task<bool> CreateMyBookingAsync(int userId, GuestBookingVm vm)
+        public async Task<bool> CreateMyBookingAsync(int userId, GuestBookingDto dto)
         {
             var goodRooms = _context.Rooms
-                .Where(r => r.Capacity >= vm.NoOfPeople)
+                .Where(r => r.Capacity >= dto.NoOfPeople)
                 .Where(r => !_context.Bookings.Any(b =>
                     b.RoomId == r.Id &&
-                    vm.StartDate < b.EndDate &&
-                    vm.EndDate > b.StartDate));
+                    dto.StartDate < b.EndDate &&
+                    dto.EndDate > b.StartDate));
 
-            if (!string.IsNullOrWhiteSpace(vm.RoomNumber))
+            if (!string.IsNullOrWhiteSpace(dto.RoomNumber))
             {
-                var typed = vm.RoomNumber.Trim();
+                var typed = dto.RoomNumber.Trim();
                 goodRooms = goodRooms.Where(r => r.Number == typed);
             }
 
@@ -59,9 +60,9 @@ namespace Hotel.Service
             {
                 UserId = userId,
                 RoomId = freeRoom.Id,
-                NoOfPeople = vm.NoOfPeople,
-                StartDate = vm.StartDate,
-                EndDate = vm.EndDate
+                NoOfPeople = dto.NoOfPeople,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate
             };
 
             _context.Bookings.Add(booking);

@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 using Hotel.Data;
-using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Hotel.DTO;
+using Hotel.DTO.Auth;
+
 
 namespace Hotel.Service.Auth
 {
@@ -17,18 +19,18 @@ namespace Hotel.Service.Auth
             _context = context;
         }
 
-        public async Task<(bool, string? Error)> RegisterAsync(RegisterVm vm)
+        public async Task<(bool, string? Error)> RegisterAsync(RegisterRequestDto dto)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == vm.Email))
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
             {
                 return (false, "Email already registered");
             }
 
             var user = new User
             {
-                Email = vm.Email,
-                Password = vm.Password,
-                Role = vm.Role
+                Email = dto.Email,
+                Password = dto.Password,
+                Role = dto.Role
             };
 
             _context.Users.Add(user);
@@ -48,13 +50,14 @@ namespace Hotel.Service.Auth
 
             return (true, user, null);
         }
-        public async Task<LoginResult> BuildLoginAsync(string email, string password)
+
+        public async Task<LoginResultDto> BuildLoginAsync(LoginRequestDto dto)
         {
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.Password == dto.Password);
 
             if (user is null)
-                return new LoginResult(false, null, null, "Invalid email or password");
+                return new LoginResultDto(false, null, null, "Invalid email or password");
 
             var claims = new[]
             {
@@ -77,7 +80,7 @@ namespace Hotel.Service.Auth
             }
 
 
-            return new LoginResult(true, principal, redirect, null);
+            return new LoginResultDto(true, principal, redirect, null);
         }
 
     }

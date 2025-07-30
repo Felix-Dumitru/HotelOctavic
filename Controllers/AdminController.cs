@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 [Route("Admin/[action]")]
 public class AdminController : Controller
 {
+    [Authorize(Roles = "Admin")]
     public IActionResult Index()
     {
         

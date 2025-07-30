@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+
+<h3>Access Denied</h3>
+<p>You do not have permission to access this page.</p>
+
+<p>
+    @* <a class="btn btn-secondary" href="@returnUrl">Go back</a> *@
+    <a asp-action="Login" asp-route-returnUrl="@returnUrl" class="btn btn-primary">Go to login page</a>
+</p>
+

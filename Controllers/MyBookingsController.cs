@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Hotel.Data;
+using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels;
 using Hotel.Service;
@@ -40,8 +41,10 @@ namespace Hotel.Controllers
 
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var success = await _service.CreateMyBookingAsync(userId, vm);
-            if (success == false)
+            var dto = new GuestBookingDto(vm.Id, vm.NoOfPeople, vm.StartDate, vm.EndDate, vm.RoomNumber);
+
+            var success = await _service.CreateMyBookingAsync(userId, dto);
+            if (!success)
             {
                 ModelState.AddModelError("", "No rooms available for this period.");
                 return View(vm);
@@ -49,7 +52,6 @@ namespace Hotel.Controllers
 
             return RedirectToAction(nameof(MyBookings));
         }
-
 
 
         public async Task<IActionResult> MyBookings()
@@ -77,7 +79,6 @@ namespace Hotel.Controllers
             if (!success) 
                 return NotFound();
 
-            TempData["Status"] = "Booking deleted.";
             return RedirectToAction(nameof(MyBookings));
         }
 

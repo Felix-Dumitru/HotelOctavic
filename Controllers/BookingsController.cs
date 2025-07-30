@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hotel.Data;
+using Hotel.DTO;
 using Hotel.Service;
 using Microsoft.AspNetCore.Authorization;
 using Hotel.Models.ViewModels;
 
 namespace Hotel.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class BookingsController : Controller
     {
         private readonly IBookingService _service;
@@ -36,10 +38,20 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            var success = await _service.CreateAsync(vm);
-            if (success == null)
+            var dto = new BookingDto
+            (
+                0,
+                vm.UserName,
+                vm.RoomNumber,
+                vm.NoOfPeople,
+                vm.StartDate,
+                vm.EndDate
+            );
+
+            var result = await _service.CreateAsync(dto);
+            if (!result.Success)
             {
-                ModelState.AddModelError("", "Error with user, room or dates.");
+                ModelState.AddModelError("", result.Message);
                 return View(vm);
             }
 
@@ -61,15 +73,24 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            var success = await _service.UpdateAsync(id, vm);
-            if (success == false)
+            var dto = new BookingDto
+            (
+                id,
+                vm.UserName,
+                vm.RoomNumber,
+                vm.NoOfPeople,
+                vm.StartDate,
+                vm.EndDate
+            );
+
+            var result = await _service.UpdateAsync(id, dto);
+            if (!result.Success)
             {
-                ModelState.AddModelError("", "Error with user, room or dates.");
+                ModelState.AddModelError("", result.Message);
                 return View(vm);
             }
 
             return RedirectToAction("Index");
-
         }
 
         public async Task<IActionResult> Delete(int id)

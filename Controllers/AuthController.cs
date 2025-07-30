@@ -1,12 +1,15 @@
-﻿using System.Security.Claims;
-using Hotel.Data;
+﻿using Hotel.Data;
+using Hotel.DTO;
+using Hotel.DTO.Auth;
 using Hotel.Models;
 using Hotel.Models.ViewModels.Auth;
 using Hotel.Service.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Hotel.Controllers
 {
@@ -19,12 +22,13 @@ namespace Hotel.Controllers
             _auth = authService;
         }
 
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVm vm)
         {
             if (!ModelState.IsValid)
@@ -32,7 +36,8 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            var (success, error) = await _auth.RegisterAsync(vm);
+            var dto = new RegisterRequestDto(vm.Email, vm.Password, vm.Role);
+            var (success, error) = await _auth.RegisterAsync(dto);
 
             if (!success)
             {
@@ -44,12 +49,13 @@ namespace Hotel.Controllers
             return RedirectToAction("Login");
         }
 
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             return View(new LoginVm {ReturnUrl = returnUrl});
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [AllowAnonymous, HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginVm vm)
         {
             if (!ModelState.IsValid)
@@ -57,7 +63,8 @@ namespace Hotel.Controllers
                 return View(vm);
             }
 
-            var result = await _auth.BuildLoginAsync(vm.Email, vm.Password);
+            var dto = new LoginRequestDto(vm.Email, vm.Password);
+            var result = await _auth.BuildLoginAsync(dto);
 
 
             if (!result.Success)
@@ -78,6 +85,19 @@ namespace Hotel.Controllers
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
+        }
+
+        [AllowAnonymous]
+        public IActionResult Denied(string? returnUrl = null)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl))
+                returnUrl = Request.Headers["Referer"].ToString();
+
+            if (!Url.IsLocalUrl(returnUrl))
+                returnUrl = Url.Content("~/");
+
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
         }
     }
 }

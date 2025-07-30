@@ -1,6 +1,6 @@
 ﻿namespace Hotel.DTO
 {
-    public class UserDTO
+    public class UserDto
     {
 
     }

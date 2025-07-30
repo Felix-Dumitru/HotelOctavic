@@ -1,7 +1,9 @@
 ﻿using Hotel.Data;
+using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Abstractions;
 
 namespace Hotel.Service
 {
@@ -26,76 +28,82 @@ namespace Hotel.Service
             return !overlap;
         }
 
-        public async Task<Booking?> CreateAsync(BookingVm vm)
+        public async Task<BookingResult> CreateAsync(BookingDto dto)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Name == vm.UserName);
-            var room = await _context.Rooms
-                .FirstOrDefaultAsync(r => r.Number == vm.RoomNumber);
-            if (user == null || room == null)
-                return null;
-
-            if (vm.NoOfPeople > room.Capacity)
-                return null;
-
-            bool available = await IsRoomAvailableAsync(room.Id, vm.StartDate, vm.EndDate, -1);
-            if (!available)
-                return null;
-
-            int result = DateTime.Compare(vm.StartDate, vm.EndDate);
+            int result = DateTime.Compare(dto.StartDate, dto.EndDate);
             if (result >= 0)
-                return null;
+                return new BookingResult(false, BookingError.InvalidDates, "End date cannot precede start date.");
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Name == dto.UserName);
+            if (user == null)
+                return new BookingResult(false, BookingError.UserNotFound, "No user with this name was found.");
+
+            var room = await _context.Rooms
+                .FirstOrDefaultAsync(r => r.Number == dto.RoomNumber);
+            if( room == null)
+                return new BookingResult(false, BookingError.RoomNotFound, "No room with this number was found.");
+
+            if (dto.NoOfPeople > room.Capacity)
+                return new BookingResult(false, BookingError.CapacityExceeded, "This room can't accomodate this many people.");
+
+            bool available = await IsRoomAvailableAsync(room.Id, dto.StartDate, dto.EndDate, -1);
+            if (!available)
+                return new BookingResult(false, BookingError.RoomUnavailable, "This room is not available between these dates."); ;
 
             var booking = new Booking
             {
                 UserId = user.Id,
                 RoomId = room.Id,
-                NoOfPeople = vm.NoOfPeople,
-                StartDate = vm.StartDate,
-                EndDate = vm.EndDate
+                NoOfPeople = dto.NoOfPeople,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate
             };
 
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
-            return booking;
+            return new BookingResult(true, BookingError.None, null, booking); ;
         }
 
-        public async Task<bool?> UpdateAsync(int id, BookingVm vm)
+        public async Task<BookingResult> UpdateAsync(int id, BookingDto dto)
         {
             var booking = await _context.Bookings.FindAsync(id);
             if (booking == null)
-                return false;
+                return new BookingResult(false, BookingError.BookingNotFound, "Booking not found.");
 
-            bool available = await IsRoomAvailableAsync(booking.RoomId, vm.StartDate, vm.EndDate, id);
-            if (!available)
-                return false;
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Name == vm.UserName);
-            
-            var room = await _context.Rooms
-                .FirstOrDefaultAsync(r => r.Number == vm.RoomNumber);
-
-            if (vm.NoOfPeople > room.Capacity)
-                return false;
-
-            if (user == null || room == null)
-                return false;
-
-            int result = DateTime.Compare(vm.StartDate, vm.EndDate);
+            int result = DateTime.Compare(dto.StartDate, dto.EndDate);
             if (result >= 0)
-                return false;
+                return new BookingResult(false, BookingError.InvalidDates, "End date cannot precede start date.");
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Name == dto.UserName);
+            if (user == null)
+                return new BookingResult(false, BookingError.UserNotFound, "No user with this name was found.");
+
+            var room = await _context.Rooms
+                .FirstOrDefaultAsync(r => r.Number == dto.RoomNumber);
+            if (room == null)
+                return new BookingResult(false, BookingError.RoomNotFound, "No room with this number was found.");
+
+            if (dto.NoOfPeople > room.Capacity)
+                return new BookingResult(false, BookingError.CapacityExceeded, "This room can't accomodate this many people.");
+
+            bool available = await IsRoomAvailableAsync(room.Id, dto.StartDate, dto.EndDate, -1);
+            if (!available)
+                return new BookingResult(false, BookingError.RoomUnavailable, "This room is not available between these dates."); ;
+
 
             booking.UserId = user.Id;
             booking.RoomId = room.Id;
-            booking.NoOfPeople = vm.NoOfPeople;
-            booking.StartDate = vm.StartDate;
-            booking.EndDate = vm.EndDate;
+            booking.NoOfPeople = dto.NoOfPeople;
+            booking.StartDate = dto.StartDate;
+            booking.EndDate = dto.EndDate;
             booking.User = user;
             booking.Room = room;
 
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
-            return true;
+            return new BookingResult(true, BookingError.None, null, booking);
         }
 
         public async Task<bool> DeleteAsync(int id)
