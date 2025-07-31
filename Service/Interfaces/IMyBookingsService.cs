@@ -2,7 +2,7 @@
 using Hotel.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Hotel.Service
+namespace Hotel.Service.Interfaces
 {
     public interface IMyBookingsService
     {

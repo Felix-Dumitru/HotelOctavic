@@ -17,9 +17,11 @@ namespace Hotel.Models
         public int NoOfPeople { get; set; }
 
         //[ForeignKey("UserId")]
-        [ValidateNever] public User User { get; set; }
+        [ValidateNever] 
+        public User User { get; set; }
 
         //[ForeignKey("RoomId")]
-        [ValidateNever] public Room Room { get; set; }
+        [ValidateNever] 
+        public Room Room { get; set; }
     }
 }

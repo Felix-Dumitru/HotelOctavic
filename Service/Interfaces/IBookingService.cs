@@ -2,7 +2,7 @@
 using Hotel.Models;
 using Hotel.Models.ViewModels;
 
-namespace Hotel.Service
+namespace Hotel.Service.Interfaces
 {
     public interface IBookingService
     {

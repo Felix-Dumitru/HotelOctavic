@@ -1,4 +1,4 @@
-﻿@model List<Hotel.Models.User>
+﻿@model List<Hotel.Models.ViewModels.UserVm>
 @{
     ViewData["Title"] = "Index";
 }
@@ -14,7 +14,6 @@
     <thead>
         <tr>
             <th>Email</th>
-            <th>Password</th>
             <th>Role</th>
         </tr>
     </thead>
@@ -23,7 +22,6 @@
         {
             <tr>
                 <td>@user.Email</td>
-                <td>@user.Password</td>
                 <td>@user.Role</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@user.Id"

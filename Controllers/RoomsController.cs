@@ -1,9 +1,11 @@
 ﻿using Hotel.Data;
+using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels;
+using Hotel.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;    
+using Microsoft.EntityFrameworkCore;
 
 
 namespace Hotel.Controllers
@@ -11,102 +13,106 @@ namespace Hotel.Controllers
     [Authorize(Roles = "Admin")]
     public class RoomsController : Controller
     {
-        private readonly HotelContext _context;
-        public RoomsController(HotelContext context)
+        private readonly IRoomService _service;
+        public RoomsController(IRoomService service)
         {
-            _context = context;
+            _service = service;
         }
 
         public async Task<IActionResult> Index()
         {
-            var room = await _context.Rooms.ToListAsync();
-            return View(room);
+            var vms = await _service.GetAllVmsAsync();
+
+            return View(vms);
         }
 
         public IActionResult Create()
         {
-
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Number, Capacity, IsOccupied")] Room room)
+        public async Task<IActionResult> Create(RoomVm vm)
         {
-             if(ModelState.IsValid)
-             {
-                _context.Rooms.Add(room);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
-             }
-             return View(room);
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var dto = new RoomDto
+            (
+                0,
+                vm.Number,
+                vm.Capacity
+            );
+
+            var room = await _service.CreateAsync(dto);
+
+            if (room == null)
+            {
+                ModelState.AddModelError("", "Invalid room data.");
+                return View(vm);
+            }
+
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var room = await _context.Rooms.FirstOrDefaultAsync(x=>x.Id== id);
-            return View(room);
+            var vm = await _service.GetVmAsync(id);
+
+            return View(vm);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, Number, Capacity, IsOccupied")] Room room)
+        public async Task<IActionResult> Edit(int id, RoomVm vm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var dto = new RoomDto
+            (
+                id,
+                vm.Number,
+                vm.Capacity
+            );
+
+            var result = await _service.UpdateAsync(id, dto);
+
+            if (result == null)
             {
-                _context.Rooms.Update(room);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Invalid room data.");
+                return View(vm);
             }
-            return View(room);
+
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var room = await _context.Rooms.FirstOrDefaultAsync(x => x.Id == id);
+            var room = await _service.GetVmAsync(id);
             return View(room);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room != null)
-            {
-                _context.Rooms.Remove(room);
-                await _context.SaveChangesAsync();
-            }
+            var success = await _service.DeleteAsync(id);
+
             return RedirectToAction("Index", "Rooms");
         }
 
         [HttpGet("/api/rooms/bookeddates/{roomId:int}")]
-        public async Task<IActionResult> GetBookedDates(int roomId)
+        public async Task<IActionResult> GetBookedDates(int id)
         {
-            var spans = await _context.Bookings
-                .Where(b => b.RoomId == roomId)
-                .Select(b => new { b.StartDate, b.EndDate })
-                .ToListAsync();
-
-            var days = new List<string>();
-            foreach (var s in spans)
-            {
-                for (var d = s.StartDate.Date; d <= s.EndDate.Date; d = d.AddDays(1))
-                    days.Add(d.ToString("yyyy-MM-dd"));
-            }
+            var days = await _service.GetBookedDatesAsync(id);
 
             return Ok(days.Distinct());
         }
 
         public async Task<IActionResult> Calendar(int id)
         {
-            var vm = await _context.Rooms
-                .Where(r => r.Id == id)
-                .Select(r => new RoomCalendarVm
-                {
-                    RoomId = r.Id,
-                    RoomNumber = r.Number
-                })
-                .SingleOrDefaultAsync();
+            var vm = await _service.GetCalendarVmAsync(id);
 
-            if (vm == null)
+            if(vm == null)
                 return NotFound();
 
             return View(vm);

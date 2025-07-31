@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using Hotel.DTO;
 using Microsoft.EntityFrameworkCore;
+using Hotel.Service.Interfaces;
 
 namespace Hotel.Service
 {

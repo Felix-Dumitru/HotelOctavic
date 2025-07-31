@@ -1,7 +1,10 @@
 ﻿namespace Hotel.DTO
 {
-    public class UserDto
-    {
-
-    }
+    public record UserDto(
+        int Id,
+        string Name,
+        string Email,
+        string Password,
+        string Role
+        );
 }

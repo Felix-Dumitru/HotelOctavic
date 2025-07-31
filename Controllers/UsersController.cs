@@ -1,76 +1,101 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Hotel.Data;
+using Hotel.DTO;
 using Hotel.Models;
+using Hotel.Models.ViewModels;
+using Hotel.Service.Interfaces;
 
 
 namespace Hotel.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly HotelContext _context;
-        public UsersController(HotelContext context)
+        private readonly IUserService _service;
+        public UsersController(IUserService service)
         {
-            _context = context;
+            _service  = service;
         }
 
         public async Task<IActionResult> Index()
         {
-            var user = await _context.Users.ToListAsync();
+            var user = await _service.GetAllVmsAsync();
             return View(user);
         }
 
         public IActionResult Create()
         {
-
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Id, Name, Email, Password, Role")] User user)
+        public async Task<IActionResult> Create(UserVm vm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var dto = new UserDto
+            (
+                0,
+                vm.Name,
+                vm.Email,
+                vm.Password,
+                vm.Role
+            );
+
+            var user = await _service.CreateAsync(dto);
+
+            if (user == null)
             {
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Invalid user data.");
+                return View(vm);
             }
-            return View(user);
+
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
-            return View(user);
+            var vm = await _service.GetVmAsync(id);
+            return View(vm);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("Id, Name, Email, Password, Role")] User user)
+        public async Task<IActionResult> Edit(int id, UserVm vm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var dto = new UserDto
+                (
+                id,
+                vm.Name,
+                vm.Email,
+                vm.Password,
+                vm.Role
+            );
+
+            var result = await _service.UpdateAsync(id, dto);
+
+            if (result == null)
             {
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                ModelState.AddModelError("Invalid user data", "Invalid user data.");
+                return View(vm);
             }
-            return View(user);
+
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            var user = await _service.GetVmAsync(id);
             return View(user);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-            }
+            var success = await _service.DeleteAsync(id);
             return RedirectToAction("Index", "Users");
         }
     }

@@ -2,6 +2,7 @@
 using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels;
+using Hotel.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Abstractions;
 
@@ -16,8 +17,7 @@ namespace Hotel.Service
             _context = context;
         }
 
-        public async Task<bool> IsRoomAvailableAsync(int roomId, DateTime startDate, DateTime endDate,
-            int? excludeId = null)
+        public async Task<bool> IsRoomAvailableAsync(int roomId, DateTime startDate, DateTime endDate, int? excludeId = null)
         {
             bool overlap = await _context.Bookings.AnyAsync(b =>
                 b.RoomId == roomId &&
@@ -88,7 +88,7 @@ namespace Hotel.Service
             if (dto.NoOfPeople > room.Capacity)
                 return new BookingResult(false, BookingError.CapacityExceeded, "This room can't accomodate this many people.");
 
-            bool available = await IsRoomAvailableAsync(room.Id, dto.StartDate, dto.EndDate, -1);
+            bool available = await IsRoomAvailableAsync(room.Id, dto.StartDate, dto.EndDate, id);
             if (!available)
                 return new BookingResult(false, BookingError.RoomUnavailable, "This room is not available between these dates."); ;
 
@@ -123,8 +123,10 @@ namespace Hotel.Service
                 .Include(b => b.User)
                 .Include(b => b.Room)
                 .FirstOrDefaultAsync(b => b.Id == id);
+
             if (booking == null)
                 return null;
+
             return new BookingVm
             {
                 Id = booking.Id,

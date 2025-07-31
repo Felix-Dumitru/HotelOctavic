@@ -1,26 +1,39 @@
-﻿@model Hotel.Models.User
+﻿@model Hotel.Models.ViewModels.UserVm
 @{
     ViewData["Title"] = "Edit";
 }
 
 <h3>Edit a user</h3>
 
-<form asp-action="Create" method="post">
+<form asp-action="Edit" method="post">
+    @* <div asp-validation-summary="All" class="text-danger"></div> *@
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input type="text" class="form-control" asp-for="Name" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label for="Email">Email</label>
-        <input type="text" class="form-control" asp-for="Email" />
+        <input type="text" class="form-control" asp-for="Email"/>
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label for="Password">Password</label>
-        <input type="text" class="form-control" asp-for="Password" />
+        <input type="text" class="form-control" asp-for="Password"/>
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label for="Role">Role</label>
         <select asp-for="Role" class="form-select">
             <option value="Guest" selected>Guest</option>
             <option value="Admin">Admin</option>
         </select>
+        <span asp-validation-for="Role" class="text-danger"></span>
     </div>
+
     <button type="submit" class="btn btn-primary">Submit</button>
     <a asp-action="Index" class="btn btn-danger">Cancel</a>
 </form>

@@ -76,7 +76,7 @@ namespace Hotel.Service.Auth
             }
             else
             {
-                redirect = "/MyBookings/Book";
+                redirect = "/MyBookings/MyBookings";
             }
 
 

@@ -5,9 +5,9 @@ using Hotel.Data;
 using Hotel.DTO;
 using Hotel.Models;
 using Hotel.Models.ViewModels;
-using Hotel.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Hotel.Service.Interfaces;
 
 namespace Hotel.Controllers
 {
